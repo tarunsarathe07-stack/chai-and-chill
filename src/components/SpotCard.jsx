@@ -29,7 +29,7 @@ export default function SpotCard({ spot }) {
   const saved = isSaved(spot.id)
 
   return (
-    <div style={{ backgroundColor: '#fff', borderRadius: '16px', marginBottom: '12px', boxShadow: '0 1px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+    <div style={{ backgroundColor: '#fff', borderRadius: '20px', marginBottom: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
 
       {/* Gradient photo placeholder */}
       <div
@@ -46,7 +46,7 @@ export default function SpotCard({ spot }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
           <p
             onClick={() => navigate(`/spot/${spot.id}`)}
-            style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: '17px', color: '#1a1a1a', margin: 0, flex: 1, cursor: 'pointer' }}
+            style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: '22px', letterSpacing: '-0.02em', color: '#1a1a1a', margin: 0, flex: 1, cursor: 'pointer' }}
           >
             {spot.name}
           </p>
@@ -65,18 +65,18 @@ export default function SpotCard({ spot }) {
           onClick={() => navigate(`/spot/${spot.id}`)}
           style={{ cursor: 'pointer' }}
         >
-          <div style={{ display: 'flex', gap: '6px', fontFamily: 'DM Sans, sans-serif', fontSize: '12px', color: '#6b6b6b', marginBottom: '10px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '6px', fontFamily: 'DM Sans, sans-serif', fontSize: '12px', color: '#8a7a6a', marginBottom: '10px', flexWrap: 'wrap' }}>
             <span>{spot.area}</span>
             <span>·</span>
             <span>★ {spot.rating}</span>
             <span>·</span>
             <span>{spot.price}</span>
           </div>
-          <p style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: '13px', color: '#6b6b6b', borderLeft: '3px solid #006577', paddingLeft: '10px', margin: '0 0 10px', lineHeight: 1.6 }}>
+          <p style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: '13px', color: '#8a7a6a', borderLeft: '3px solid #006577', background: 'rgba(0,101,119,0.03)', borderRadius: '0 8px 8px 0', padding: '8px 12px 8px 14px', margin: '0 0 10px', lineHeight: 1.6 }}>
             {spot.tagline}
           </p>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '12px', color: '#1a1a1a', margin: 0 }}>
-            <span style={{ color: '#6b6b6b' }}>Must Try: </span>{spot.mustTry}
+          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '12px', background: '#fdf5e8', border: '1px solid #f0e0c0', borderRadius: '10px', padding: '10px 14px', margin: 0, color: '#1a1a1a' }}>
+            <span style={{ color: '#8a7a6a' }}>Must Try: </span>{spot.mustTry}
           </p>
         </div>
       </div>

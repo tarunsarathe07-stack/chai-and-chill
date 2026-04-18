@@ -1,130 +1,172 @@
-import { useParams, useNavigate } from 'react-router-dom'
-import { spots } from '../data/spots'
-import { useSaved } from '../hooks/useSaved'
-import BottomNav from '../components/BottomNav'
+import { useState, useEffect } from 'react'
+import { C, FONTS, Icon, Tagline, Tap, Enter, BookmarkBtn, SectionHeader } from '../ui/primitives.jsx'
+import { MOODS } from '../data/adapted.js'
 
-const MOOD_GRADIENTS = {
-  date:       ['#f8e8e8', '#e8d0d0'],
-  solo:       ['#e8eef8', '#d0ddf0'],
-  budget:     ['#f8f4e8', '#f0e8d0'],
-  friends:    ['#e8f4e8', '#d0ead0'],
-  instagram:  ['#f4e8f8', '#e8d0f0'],
-  work:       ['#e8f8f8', '#d0ecec'],
-  legendary:  ['#f8f0e8', '#f0e0cc'],
-  nature:     ['#eaf4e8', '#d4ebd0'],
-  premium:    ['#f0ece8', '#e4d8cc'],
-  late_night: ['#e8e8f4', '#d0d0ec'],
-  rooftop:    ['#f4f0e8', '#ece0cc'],
-  scenic:     ['#e8f0f8', '#cce0f0'],
-  default:    ['#f0ece8', '#e4d8cc'],
-}
-
-function moodGradient(moods) {
-  const key = (moods && moods[0]) || 'default'
-  const [a, b] = MOOD_GRADIENTS[key] ?? MOOD_GRADIENTS.default
-  return `linear-gradient(135deg, ${a}, ${b})`
-}
-
-export default function Detail() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const { isSaved, toggleSaved } = useSaved()
-  const spot = spots.find((s) => s.id === Number(id))
-  const saved = spot ? isSaved(spot.id) : false
-
-  if (!spot) {
-    return (
-      <div className="px-4 pt-10 min-h-screen" style={{ backgroundColor: '#fff8f0' }}>
-        <button onClick={() => navigate(-1)} style={{ color: '#006577', background: 'none', border: 'none', cursor: 'pointer', marginBottom: '16px' }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#6b6b6b' }}>Ye spot nakko mila bawa.</p>
+function InfoCell({ label, value }) {
+  return (
+    <div style={{ background: C.surface, borderRadius: 14, padding: '12px 14px' }}>
+      <div style={{ fontFamily: FONTS.body, fontSize: 10.5, fontWeight: 600, color: C.muted, letterSpacing: 1, textTransform: 'uppercase' }}>
+        {label}
       </div>
-    )
-  }
+      <div style={{ fontFamily: FONTS.body, fontSize: 14, fontWeight: 500, color: C.text, marginTop: 4 }}>
+        {value}
+      </div>
+    </div>
+  )
+}
+
+export default function Detail({ spot, onBack, saved, toggleSave }) {
+  const [slideUp, setSlideUp] = useState(false)
+
+  useEffect(() => {
+    setSlideUp(false)
+    const t = setTimeout(() => setSlideUp(true), 40)
+    return () => clearTimeout(t)
+  }, [spot?.id])
+
+  if (!spot) return null
+
+  const mood = MOODS.find(m => m.id === spot.moodId) || MOODS[0]
+
+  const mapsUrl = spot.placeId
+    ? `https://www.google.com/maps/place/?q=place_id:${spot.placeId}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.area + ' Bhopal')}`
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: '#fff8f0' }}>
+    <div data-scroll-root style={{ background: C.bg, height: '100%', overflowY: 'auto', overflowX: 'hidden', position: 'relative' }}>
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 pt-10 pb-4">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
-            style={{ color: '#006577', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', flexShrink: 0 }}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#6b6b6b' }}>{spot.area}</span>
+      {/* Full bleed image area */}
+      <div style={{ height: 340, position: 'relative' }}>
+        <div style={{ position: 'absolute', inset: 0, background: mood.grad }}>
+          <div style={{
+            position: 'absolute', inset: 0, opacity: 0.14,
+            backgroundImage: `radial-gradient(${mood.accent} 1px, transparent 1px)`,
+            backgroundSize: '16px 16px',
+          }} />
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            fontFamily: FONTS.display, fontWeight: 800, fontSize: 220,
+            color: mood.accent, opacity: 0.7, letterSpacing: -10, lineHeight: 1,
+          }}>{spot.name[0]}</div>
         </div>
-        <button
-          onClick={() => toggleSaved(spot.id)}
-          aria-label={saved ? 'Unsave' : 'Save'}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill={saved ? '#006577' : 'none'} stroke={saved ? '#006577' : '#6b6b6b'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z" />
-          </svg>
-        </button>
+        <div style={{ position: 'absolute', top: 62, left: 20 }}>
+          <Tap onClick={onBack} scale={0.9} style={{
+            width: 40, height: 40, borderRadius: 100,
+            background: 'rgba(255,248,240,0.9)',
+            backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          }}>
+            <Icon name="arrowLeft" size={18} color={C.primary} />
+          </Tap>
+        </div>
+        <div style={{ position: 'absolute', top: 62, right: 20 }}>
+          <BookmarkBtn saved={saved} onToggle={toggleSave} size={40} />
+        </div>
       </div>
 
-      {/* Gradient photo placeholder */}
-      <div style={{ height: '240px', background: moodGradient(spot.moods), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ fontFamily: 'Playfair Display, serif', fontSize: '80px', color: 'rgba(0,0,0,0.15)', lineHeight: 1, userSelect: 'none' }}>
-          {spot.name[0]}
-        </span>
+      {/* Content slides up */}
+      <div style={{
+        background: C.bg, borderRadius: '24px 24px 0 0',
+        marginTop: -28, position: 'relative', zIndex: 2,
+        padding: '20px 20px 120px',
+        transform: slideUp ? 'translateY(0)' : 'translateY(40px)',
+        opacity: slideUp ? 1 : 0,
+        transition: 'transform 620ms cubic-bezier(0.2,0.9,0.2,1), opacity 480ms ease-out',
+      }}>
+        <Enter delay={100} keyId={`d-row-${spot.id}`}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: 'rgba(196,154,42,0.14)', color: '#8b6a1a',
+              padding: '5px 10px', borderRadius: 100,
+              fontFamily: FONTS.body, fontSize: 12, fontWeight: 600,
+            }}>
+              <Icon name="starFill" size={12} color="#c49a2a" /> {spot.rating}
+            </div>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: 'rgba(42,154,90,0.14)', color: '#1f6d41',
+              padding: '5px 10px', borderRadius: 100,
+              fontFamily: FONTS.body, fontSize: 12, fontWeight: 600,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: 6, background: '#2a9a5a' }} />
+              {spot.reviews} reviews
+            </div>
+          </div>
+        </Enter>
+
+        <Enter delay={170} keyId={`d-area-${spot.id}`}>
+          <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 5, fontFamily: FONTS.body, fontSize: 13, color: C.muted, fontWeight: 500 }}>
+            <Icon name="pin" size={13} color={C.muted} stroke={1.8} /> {spot.area}
+          </div>
+        </Enter>
+
+        <Enter delay={220} keyId={`d-name-${spot.id}`}>
+          <div style={{ marginTop: 6, fontFamily: FONTS.display, fontWeight: 800, fontSize: 28, color: C.text, letterSpacing: -0.6, lineHeight: 1.1 }}>
+            {spot.name}
+          </div>
+        </Enter>
+
+        <Enter delay={280} keyId={`d-tag-${spot.id}`}>
+          <div style={{ marginTop: 14 }}>
+            <Tagline>{spot.tagline}</Tagline>
+          </div>
+        </Enter>
+
+        <Enter delay={340} keyId={`d-grid-${spot.id}`}>
+          <div style={{ marginTop: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <InfoCell label="Price" value={spot.price} />
+            <InfoCell label="Diet" value={spot.diet} />
+            <InfoCell label="Hours" value={spot.hours} />
+            <InfoCell label="Budget" value={spot.budget} />
+          </div>
+        </Enter>
+
+        <div style={{ marginTop: 24 }}>
+          <SectionHeader>Must Try</SectionHeader>
+          <div style={{ marginTop: 10, display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', padding: '2px 0 4px' }}>
+            {spot.mustTry.map(m => (
+              <div key={m} style={{
+                background: 'rgba(196,154,42,0.18)', color: '#7a5a12',
+                fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
+                padding: '8px 14px', borderRadius: 100, whiteSpace: 'nowrap',
+                border: '1px solid rgba(196,154,42,0.3)',
+              }}>{m}</div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 24 }}>
+          <SectionHeader>Good For</SectionHeader>
+          <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {spot.tags.map(t => (
+              <div key={t} style={{
+                fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
+                color: C.primary, background: 'rgba(0,101,119,0.08)',
+                padding: '7px 14px', borderRadius: 100,
+                border: '1px solid rgba(0,101,119,0.14)',
+              }}>{t}</div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginTop: 28 }}>
+          <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', boxSizing: 'border-box',
+            background: C.primary, color: '#fff',
+            padding: '16px 20px', borderRadius: 100,
+            fontFamily: FONTS.body, fontWeight: 500, fontSize: 15,
+            textDecoration: 'none',
+            boxShadow: '0 10px 24px rgba(0,101,119,0.28)',
+          }}>
+            <Icon name="pin" size={16} color="#fff" stroke={2} />
+            Open in Google Maps →
+          </a>
+        </div>
       </div>
-
-      {/* Content */}
-      <div className="px-4 pt-5">
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: '26px', color: '#1a1a1a', margin: '0 0 6px' }}>
-          {spot.name}
-        </h1>
-
-        <div style={{ display: 'flex', gap: '8px', fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#6b6b6b', marginBottom: '16px', flexWrap: 'wrap' }}>
-          <span>★ {spot.rating}</span>
-          <span>·</span>
-          <span>{spot.reviews} reviews</span>
-          <span>·</span>
-          <span>{spot.price}</span>
-          <span>·</span>
-          <span>{spot.hours}</span>
-        </div>
-
-        <p style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: '15px', color: '#6b6b6b', borderLeft: '3px solid #006577', paddingLeft: '14px', margin: '0 0 20px', lineHeight: 1.7 }}>
-          {spot.tagline}
-        </p>
-
-        <div style={{ backgroundColor: '#fff', borderRadius: '14px', padding: '14px 16px', marginBottom: '10px' }}>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '10px', color: '#6b6b6b', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px' }}>Must Try</p>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: '#1a1a1a', margin: 0 }}>{spot.mustTry}</p>
-        </div>
-
-        <div style={{ backgroundColor: '#fff', borderRadius: '14px', padding: '14px 16px', marginBottom: '20px' }}>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '10px', color: '#6b6b6b', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px' }}>Hours</p>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '14px', color: '#1a1a1a', margin: 0 }}>{spot.hours}</p>
-        </div>
-
-        <a
-          href={spot.placeId ? `https://www.google.com/maps/place/?q=place_id:${spot.placeId}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.area + ' Bhopal')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '14px', backgroundColor: '#006577', color: '#fff', borderRadius: '14px', fontFamily: 'DM Sans, sans-serif', fontSize: '14px', fontWeight: 500, textDecoration: 'none', boxSizing: 'border-box' }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2C8.686 2 6 4.686 6 8c0 4.5 6 13 6 13s6-8.5 6-13c0-3.314-2.686-6-6-6z" />
-            <circle cx="12" cy="8" r="2" />
-          </svg>
-          Open in Google Maps
-        </a>
-      </div>
-
-      <BottomNav />
     </div>
   )
 }

@@ -1,225 +1,226 @@
-import { useNavigate } from 'react-router-dom'
-import { spots } from '../data/spots'
-import BottomNav from '../components/BottomNav'
+import { C, FONTS, Icon, SpotImage, Tap, Reveal, Enter } from '../ui/primitives.jsx'
+import { SPOTS, MOODS, BAWA_TIPS } from '../data/adapted.js'
 
-// ── Mood config ──────────────────────────────────────────────────────────────
-const MOODS = [
-  {
-    key: 'date',
-    label: 'Date Night',
-    bg: '#fff0f0',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b52619" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-      </svg>
-    ),
-  },
-  {
-    key: 'solo',
-    label: 'Solo Chill',
-    bg: '#f0f5ff',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#006577" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M18 8h1a4 4 0 010 8h-1" />
-        <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
-        <line x1="6" y1="1" x2="6" y2="4" />
-        <line x1="10" y1="1" x2="10" y2="4" />
-        <line x1="14" y1="1" x2="14" y2="4" />
-      </svg>
-    ),
-  },
-  {
-    key: 'budget',
-    label: 'Budget Friendly',
-    bg: '#fffbf0',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b07d00" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="1" x2="12" y2="23" />
-        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-      </svg>
-    ),
-  },
-  {
-    key: 'friends',
-    label: 'Squad Hangout',
-    bg: '#f0fff5',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#006577" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 00-3-3.87" />
-        <path d="M16 3.13a4 4 0 010 7.75" />
-      </svg>
-    ),
-  },
-  {
-    key: 'instagram',
-    label: 'Instagram Worthy',
-    bg: '#fdf0ff',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7e22ce" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-        <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
-        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-      </svg>
-    ),
-  },
-  {
-    key: 'work',
-    label: 'Get Work Done',
-    bg: '#f0fbff',
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#006577" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-        <line x1="8" y1="21" x2="16" y2="21" />
-        <line x1="12" y1="17" x2="12" y2="21" />
-      </svg>
-    ),
-  },
-]
-
-function countMood(key) {
-  return spots.filter((s) => s.moods.includes(key)).length
-}
+const MOOD_ICONS = { date: 'heart', solo: 'coffee', budget: 'rupee', squad: 'users', insta: 'camera', work: 'laptop' }
 
 const getDailyPick = () => {
   const today = new Date()
-  const seed = today.getFullYear() * 10000 +
-               (today.getMonth() + 1) * 100 +
-               today.getDate()
-  return spots[seed % spots.length]
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+  return SPOTS[seed % SPOTS.length]
 }
-
 const dailyPick = getDailyPick()
 
-const AREAS = ['Arera Colony', 'MP Nagar', 'Old Bhopal', 'Shyamla Hills', 'Kerwa Dam']
+function SectionHeader({ children }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ width: 3, height: 18, background: C.primary, borderRadius: 2, flexShrink: 0 }} />
+      <div style={{ fontFamily: FONTS.display, fontWeight: 700, fontSize: 18, color: C.text, letterSpacing: -0.2 }}>
+        {children}
+      </div>
+    </div>
+  )
+}
 
-// ── Component ────────────────────────────────────────────────────────────────
-export default function Home() {
-  const navigate = useNavigate()
+function MoodTile({ mood, onClick }) {
+  return (
+    <Tap onClick={onClick} scale={0.94} style={{
+      borderRadius: 16, overflow: 'hidden', position: 'relative',
+      background: mood.grad, minHeight: 140, padding: 16,
+      boxShadow: '0 4px 14px rgba(0,101,119,0.08), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 0 0 1px rgba(255,255,255,0.25)',
+    }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: mood.accent }} />
+      <div style={{
+        position: 'absolute', right: -10, bottom: -22,
+        fontFamily: FONTS.display, fontWeight: 800, fontSize: 72,
+        color: mood.accent, opacity: 0.245,
+        letterSpacing: -3, lineHeight: 1, pointerEvents: 'none',
+      }}>{mood.big}</div>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 108 }}>
+        <div style={{
+          width: 30, height: 30, borderRadius: 8,
+          background: 'rgba(255,255,255,0.7)',
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <Icon name={MOOD_ICONS[mood.id]} size={16} color={mood.accent} stroke={1.8} />
+        </div>
+        <div style={{ marginTop: 'auto' }}>
+          <div style={{ fontFamily: FONTS.display, fontWeight: 700, fontSize: 16, color: '#1a1a1a', lineHeight: 1.1, letterSpacing: -0.2 }}>
+            {mood.name}
+          </div>
+          <div style={{ fontFamily: FONTS.body, fontSize: 11, color: '#8a7a6a', marginTop: 4, fontWeight: 500 }}>
+            {SPOTS.filter(s => s.tags.includes(mood.id)).length} spots
+          </div>
+        </div>
+      </div>
+    </Tap>
+  )
+}
+
+export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
+  const tipIdx = bawaTipIdx % BAWA_TIPS.length
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: '#fff8f0' }}>
-
-      {/* ── Top Bar ── */}
-      <div className="flex items-center px-5 pt-10 pb-4">
-        <h1 style={{ fontFamily: 'Playfair Display, serif', color: '#006577', fontSize: '24px', fontWeight: 700, margin: 0 }}>
+    <div data-scroll-root style={{
+      background: C.bg, height: '100%', overflowY: 'auto', overflowX: 'hidden',
+      paddingBottom: 110,
+    }}>
+      {/* Top bar */}
+      <div style={{ padding: '62px 20px 8px', display: 'flex', alignItems: 'center' }}>
+        <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 20, color: C.primary, letterSpacing: -0.3 }}>
           Chai &amp; Chill
-        </h1>
-      </div>
-
-      {/* ── Hero Card ── */}
-      <div className="mx-4 mb-7 rounded-[20px] p-6" style={{ backgroundColor: '#006577' }}>
-        <p style={{ fontFamily: 'DM Sans, sans-serif', color: '#fff8f0', fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '12px', opacity: 0.85 }}>
-          Bhopal · 57 spots curated
-        </p>
-        <p style={{ fontFamily: 'Playfair Display, serif', color: '#fff8f0', fontSize: '32px', fontStyle: 'italic', lineHeight: 1.2, marginBottom: '6px' }}>
-          Kya mood hai,<br />bawa?
-        </p>
-        <p style={{ fontFamily: 'DM Sans, sans-serif', color: 'rgba(255,255,255,0.7)', fontSize: '13px', marginBottom: '20px' }}>
-          Bhopal ke best spots. Ek Bhopali ki nazar se.
-        </p>
-        <button
-          onClick={() => navigate('/results/best')}
-          style={{ fontFamily: 'DM Sans, sans-serif', fontWeight: 500, fontSize: '13px', backgroundColor: '#b52619', color: '#fff', border: 'none', borderRadius: '100px', padding: '10px 22px', cursor: 'pointer' }}
-        >
-          Show me the best
-        </button>
-      </div>
-
-      {/* ── Explore by Mood ── */}
-      <div className="px-4 mb-7">
-        <div className="flex items-baseline justify-between mb-4">
-          <h2 style={{ fontFamily: 'Playfair Display, serif', color: '#1a1a1a', fontSize: '20px', fontWeight: 600, margin: 0 }}>
-            Explore by Mood
-          </h2>
-          <span style={{ fontFamily: 'DM Sans, sans-serif', fontStyle: 'italic', fontSize: '12px', color: '#006577' }}>
-            What are you feeling?
-          </span>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          {MOODS.map((mood) => (
-            <button
-              key={mood.key}
-              onClick={() => navigate(`/results/${mood.key}`)}
-              style={{ backgroundColor: mood.bg, borderRadius: '16px', padding: '16px 14px', border: 'none', boxShadow: '0 1px 6px rgba(0,0,0,0.07)', textAlign: 'left', cursor: 'pointer' }}
-            >
-              <div style={{ marginBottom: '10px' }}>{mood.icon}</div>
-              <p style={{ fontFamily: 'Playfair Display, serif', fontWeight: 600, fontSize: '14px', color: '#1a1a1a', margin: '0 0 2px' }}>
-                {mood.label}
-              </p>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '11px', color: '#6b6b6b', margin: 0 }}>
-                {countMood(mood.key)} spots
-              </p>
-            </button>
-          ))}
         </div>
       </div>
 
-      {/* ── Popular Areas ── */}
-      <div className="mb-7">
-        <h2 className="px-4" style={{ fontFamily: 'Playfair Display, serif', color: '#1a1a1a', fontSize: '20px', fontWeight: 600, margin: '0 0 12px' }}>
-          Popular Areas
-        </h2>
-        <div className="flex gap-2 px-4 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-          {AREAS.map((area) => (
-            <button
-              key={area}
-              onClick={() => navigate(`/explore?area=${encodeURIComponent(area)}`)}
-              style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#006577', border: '1.5px solid #006577', borderRadius: '8px', padding: '8px 16px', backgroundColor: 'transparent', whiteSpace: 'nowrap', cursor: 'pointer', flexShrink: 0 }}
-            >
-              {area}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Today's Pick ── */}
-      <div className="px-4 mb-7">
-        <h2 style={{ fontFamily: 'Playfair Display, serif', color: '#1a1a1a', fontSize: '20px', fontWeight: 600, margin: '0 0 12px' }}>
-          Today's Pick
-        </h2>
-        <div
-          onClick={() => navigate(`/spot/${dailyPick.id}`)}
-          style={{ backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 2px 16px rgba(0,0,0,0.08)', overflow: 'hidden', cursor: 'pointer' }}
-        >
-          <div style={{ height: '200px', backgroundColor: '#e8f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontFamily: 'Playfair Display, serif', fontSize: '28px', color: '#006577', opacity: 0.35, fontStyle: 'italic' }}>
-              {dailyPick.name}
-            </span>
+      {/* Hero card */}
+      <div style={{ padding: '12px 20px 0' }}>
+        <div style={{
+          background: C.primary, borderRadius: 20,
+          padding: '28px 24px 32px', position: 'relative', overflow: 'hidden',
+          minHeight: 280,
+          boxShadow: '0 10px 30px rgba(0,101,119,0.22)',
+          textAlign: 'left',
+        }}>
+          <div style={{
+            position: 'absolute', inset: 0, opacity: 0.2,
+            backgroundImage: 'radial-gradient(circle at center, rgba(255,248,240,0.6) 1px, transparent 1.5px)',
+            backgroundSize: '16px 16px',
+          }} />
+          <div style={{
+            position: 'absolute', right: -40, top: -40, width: 160, height: 160,
+            borderRadius: 160, background: 'rgba(181,38,25,0.22)', filter: 'blur(28px)',
+          }} />
+          <div style={{ position: 'relative' }}>
+            <Enter delay={0} keyId="hero-label">
+              <div style={{ fontFamily: FONTS.body, fontSize: 10.5, fontWeight: 600, color: 'rgba(255,248,240,0.82)', letterSpacing: 2, textTransform: 'uppercase' }}>
+                Bhopal · 57 Spots Curated
+              </div>
+            </Enter>
+            <Enter delay={100} keyId="hero-h">
+              <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 36, lineHeight: 1.1, color: '#fff', marginTop: 14, letterSpacing: '-0.5px' }}>
+                Kya mood hai,<br />bawa?
+              </div>
+            </Enter>
+            <Enter delay={200} keyId="hero-sub">
+              <div style={{ fontFamily: FONTS.body, fontSize: 14.5, lineHeight: 1.5, color: 'rgba(255,248,240,0.85)', marginTop: 14, maxWidth: 260 }}>
+                Bhopal ke best spots. Ek Bhopali ki nazar se.
+              </div>
+            </Enter>
+            <Enter delay={300} keyId="hero-btn">
+              <Tap onClick={() => onNavigate('explore')} style={{
+                marginTop: 26, display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: C.accent, color: '#fff',
+                padding: '13px 22px', borderRadius: 100,
+                fontFamily: FONTS.body, fontWeight: 500, fontSize: 14,
+                boxShadow: '0 6px 16px rgba(181,38,25,0.32)',
+              }}>
+                Show me the best
+                <Icon name="arrowRight" size={14} color="#fff" stroke={2.2} />
+              </Tap>
+            </Enter>
           </div>
-          <div style={{ padding: '16px' }}>
-            <p style={{ fontFamily: 'Playfair Display, serif', fontWeight: 700, fontSize: '22px', color: '#1a1a1a', margin: '0 0 6px' }}>
-              {dailyPick.name}
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: 'DM Sans, sans-serif', fontSize: '13px', color: '#6b6b6b', marginBottom: '12px' }}>
-              <span>{dailyPick.area}</span>
-              <span>·</span>
-              <span>★ {dailyPick.rating}</span>
-              <span>·</span>
-              <span>{dailyPick.price}</span>
+        </div>
+      </div>
+
+      {/* Explore by Mood */}
+      <div style={{ padding: '30px 20px 10px' }}>
+        <SectionHeader>Explore by Mood</SectionHeader>
+      </div>
+      <div style={{ padding: '0 20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {MOODS.map((m, i) => (
+          <Reveal key={m.id} delay={i * 80}>
+            <MoodTile mood={m} onClick={() => onNavigate('mood', m.id)} />
+          </Reveal>
+        ))}
+      </div>
+
+      {/* Popular Areas */}
+      <div style={{ padding: '30px 20px 10px' }}>
+        <SectionHeader>Popular Areas</SectionHeader>
+      </div>
+      <div style={{ display: 'flex', gap: 8, padding: '0 20px 4px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+        {['Arera Colony', 'MP Nagar', 'Old Bhopal', 'Shyamla Hills', 'Kerwa Dam'].map(a => (
+          <Tap key={a} onClick={() => onNavigate('explore')} scale={0.94} style={{
+            display: 'inline-flex', alignItems: 'center',
+            padding: '8px 14px', borderRadius: 100,
+            border: `1.5px solid ${C.primary}`,
+            background: 'transparent', color: C.primary,
+            fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
+            whiteSpace: 'nowrap', flexShrink: 0,
+          }}>{a}</Tap>
+        ))}
+      </div>
+
+      {/* Today's Pick */}
+      <div style={{ padding: '30px 20px 0' }}>
+        <SectionHeader>Today's Pick</SectionHeader>
+      </div>
+      <div style={{ padding: '10px 20px 0' }}>
+        <Reveal>
+          <Tap onClick={() => onOpenSpot(dailyPick)} style={{
+            background: '#fff', borderRadius: 20, overflow: 'hidden',
+            boxShadow: C.shadowWarm,
+          }}>
+            <div style={{ padding: 10 }}>
+              <SpotImage spot={dailyPick} moods={MOODS} height={170} rounded={14} />
             </div>
-            <p style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: '14px', color: '#6b6b6b', borderLeft: '3px solid #006577', paddingLeft: '12px', margin: 0, lineHeight: 1.6 }}>
-              {dailyPick.tagline}
-            </p>
-          </div>
-        </div>
+            <div style={{ padding: '6px 16px 18px' }}>
+              <div style={{ fontFamily: FONTS.display, fontWeight: 700, fontSize: 22, color: C.text, letterSpacing: -0.3 }}>
+                {dailyPick.name}
+              </div>
+              <div style={{ fontFamily: FONTS.body, fontSize: 12, color: C.muted, marginTop: 3, display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span>{dailyPick.area}</span><span>·</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: C.text }}>
+                  <Icon name="starFill" size={12} color="#c49a2a" /> {dailyPick.rating}
+                </span>
+                <span>·</span><span>{dailyPick.price}</span>
+              </div>
+              <div style={{ marginTop: 12 }}>
+                <div style={{
+                  fontFamily: FONTS.display, fontStyle: 'italic', fontSize: 14,
+                  color: C.text, lineHeight: 1.4,
+                  borderLeft: `2px solid ${C.primary}`,
+                  paddingLeft: 10, paddingTop: 4, paddingBottom: 4, paddingRight: 6,
+                  background: 'rgba(0,101,119,0.04)', borderRadius: '0 6px 6px 0',
+                }}>{dailyPick.tagline}</div>
+              </div>
+              <div style={{ marginTop: 14, fontFamily: FONTS.body, fontSize: 13, color: C.primary, fontWeight: 500, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                View Spot <span style={{ marginLeft: 2 }}>→</span>
+              </div>
+            </div>
+          </Tap>
+        </Reveal>
       </div>
 
-      {/* ── Footer ── */}
-      <div className="px-6 pb-10 text-center">
-        <p style={{ fontFamily: 'Playfair Display, serif', fontStyle: 'italic', fontSize: '16px', color: '#1a1a1a', lineHeight: 1.7, margin: '0 0 12px' }}>
+      {/* Bawa's Tip */}
+      <div style={{ padding: '30px 20px 0' }}>
+        <Reveal>
+          <div style={{ background: C.surface, borderRadius: 20, padding: '22px 22px 20px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{
+              fontFamily: FONTS.display, fontWeight: 800, fontSize: 80,
+              color: C.primary, opacity: 0.25, position: 'absolute',
+              top: 0, left: 14, lineHeight: 1,
+            }}>"</div>
+            <div style={{ fontFamily: FONTS.display, fontStyle: 'italic', fontSize: 17, color: C.text, lineHeight: 1.45, paddingTop: 24, paddingLeft: 6, maxWidth: '92%' }}>
+              {BAWA_TIPS[tipIdx]}
+            </div>
+            <div style={{ fontFamily: FONTS.body, fontSize: 12, color: C.muted, marginTop: 12, paddingLeft: 6, letterSpacing: 0.3 }}>
+              — Bawa's Tip
+            </div>
+          </div>
+        </Reveal>
+      </div>
+
+      {/* Footer */}
+      <div style={{ padding: '32px 28px 20px', textAlign: 'center' }}>
+        <div style={{ fontFamily: FONTS.display, fontStyle: 'italic', fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
           No ads. No sponsored listings.<br />
           Bhopal ke best spots sirf<br />
           Bhopalion ko pata hone chahiye.
-        </p>
-        <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '12px', color: '#6b6b6b', margin: 0 }}>
-          Curated by Tarun <span style={{ color: '#b52619' }}>♥</span>
-        </p>
+        </div>
+        <div style={{ fontFamily: FONTS.body, fontSize: 11, color: C.muted, marginTop: 18, opacity: 0.85 }}>
+          Curated by Tarun <span style={{ color: C.accent }}>♥</span>
+        </div>
       </div>
-
-      <BottomNav />
     </div>
   )
 }

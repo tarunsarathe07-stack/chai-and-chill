@@ -5,7 +5,18 @@
 body {
   max-width: 430px;
   margin: 0 auto;
-  background-color: #fff8f0;
+  background: #fff8f0;
   font-family: 'DM Sans', sans-serif;
   min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  body {
+    box-shadow: 0 0 40px rgba(0,0,0,0.1);
+    min-height: 100vh;
+  }
+
+  html {
+    background: #e8e0d8;
+  }
 }

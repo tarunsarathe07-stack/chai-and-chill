@@ -111,7 +111,7 @@ export default function Detail() {
         </div>
 
         <a
-          href={`https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`}
+          href={spot.placeId ? `https://www.google.com/maps/place/?q=place_id:${spot.placeId}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + ' ' + spot.area + ' Bhopal')}`}
           target="_blank"
           rel="noopener noreferrer"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', padding: '14px', backgroundColor: '#006577', color: '#fff', borderRadius: '14px', fontFamily: 'DM Sans, sans-serif', fontSize: '14px', fontWeight: 500, textDecoration: 'none', boxSizing: 'border-box' }}

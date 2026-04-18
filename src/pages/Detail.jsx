@@ -17,12 +17,30 @@ function InfoCell({ label, value }) {
 
 export default function Detail({ spot, onBack, saved, toggleSave }) {
   const [slideUp, setSlideUp] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     setSlideUp(false)
     const t = setTimeout(() => setSlideUp(true), 40)
     return () => clearTimeout(t)
   }, [spot?.id])
+
+  const handleShare = async () => {
+    const shareUrl = `https://chaichill.in/api/spot-meta?id=${spot.id}`
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${spot.name} — Chai & Chill`,
+          text: spot.tagline,
+          url: shareUrl,
+        })
+      } catch { /* user cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   if (!spot) return null
 
@@ -152,10 +170,27 @@ export default function Detail({ spot, onBack, saved, toggleSave }) {
           </div>
         </div>
 
-        <div style={{ marginTop: 28 }}>
+        <div style={{ marginTop: 28, display: 'flex', gap: 10 }}>
+          {/* Share button */}
+          <Tap onClick={handleShare} style={{
+            flex: '0 0 auto',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            padding: '16px 20px', borderRadius: 100,
+            border: `1.5px solid ${C.primary}`,
+            background: copied ? 'rgba(0,101,119,0.08)' : 'transparent',
+            color: C.primary,
+            fontFamily: FONTS.body, fontWeight: 500, fontSize: 15,
+            transition: 'background 200ms',
+            whiteSpace: 'nowrap',
+          }}>
+            <Icon name={copied ? 'check' : 'share'} size={16} color={C.primary} stroke={2} />
+            {copied ? 'Copied!' : 'Share'}
+          </Tap>
+
+          {/* Maps button */}
           <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{
+            flex: 1,
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            width: '100%', boxSizing: 'border-box',
             background: C.primary, color: '#fff',
             padding: '16px 20px', borderRadius: 100,
             fontFamily: FONTS.body, fontWeight: 500, fontSize: 15,
@@ -163,7 +198,7 @@ export default function Detail({ spot, onBack, saved, toggleSave }) {
             boxShadow: '0 10px 24px rgba(0,101,119,0.28)',
           }}>
             <Icon name="pin" size={16} color="#fff" stroke={2} />
-            Open in Google Maps →
+            Open in Maps →
           </a>
         </div>
       </div>

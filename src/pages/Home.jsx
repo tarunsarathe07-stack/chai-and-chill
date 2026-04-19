@@ -1,5 +1,193 @@
+import { useState } from 'react'
 import { C, FONTS, Icon, SpotImage, Tap, Reveal, Enter } from '../ui/primitives.jsx'
 import { SPOTS, MOODS, BAWA_TIPS } from '../data/adapted.js'
+
+const FORMSPREE_ID = 'YOUR_FORM_ID' // sign up at formspree.io → new form → copy the ID
+
+function SuggestSheet({ onClose }) {
+  const [form, setForm] = useState({ name: '', area: '', why: '', whatsapp: '' })
+  const [status, setStatus] = useState('idle') // idle | sending | success | error
+
+  const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }))
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!form.name.trim()) return
+    setStatus('sending')
+    try {
+      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          spot_name: form.name,
+          area: form.area,
+          why: form.why,
+          whatsapp: form.whatsapp,
+        }),
+      })
+      setStatus(res.ok ? 'success' : 'error')
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  const inputStyle = {
+    width: '100%', boxSizing: 'border-box',
+    fontFamily: FONTS.body, fontSize: 14, color: C.text,
+    background: C.surface, border: `1.5px solid ${C.border}`,
+    borderRadius: 12, padding: '12px 14px',
+    outline: 'none', resize: 'none',
+    lineHeight: 1.5,
+  }
+  const labelStyle = {
+    fontFamily: FONTS.body, fontSize: 11.5, fontWeight: 600,
+    color: C.muted, letterSpacing: 0.6, textTransform: 'uppercase',
+    display: 'block', marginBottom: 6,
+  }
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 50,
+          background: 'rgba(0,0,0,0.4)',
+          backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)',
+          animation: 'fadeIn 200ms ease-out',
+        }}
+      />
+
+      {/* Sheet */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+        width: '100%', maxWidth: 430, zIndex: 51,
+        background: '#fff8f0', borderRadius: '24px 24px 0 0',
+        boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
+        animation: 'sheetUp 320ms cubic-bezier(0.2,0.9,0.2,1)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}>
+        {/* Handle */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+          <div style={{ width: 36, height: 4, borderRadius: 2, background: C.border }} />
+        </div>
+
+        <div style={{ padding: '8px 22px 28px', overflowY: 'auto', maxHeight: '80vh' }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
+            <div>
+              <div style={{ fontFamily: FONTS.display, fontWeight: 700, fontSize: 22, color: C.text, letterSpacing: -0.3 }}>
+                Suggest a spot, bawa
+              </div>
+              <div style={{ fontFamily: FONTS.body, fontSize: 13, color: C.muted, marginTop: 3 }}>
+                Found a hidden gem? Tell us about it.
+              </div>
+            </div>
+            <Tap onClick={onClose} scale={0.88} style={{
+              width: 34, height: 34, borderRadius: 100,
+              background: C.surface, border: `1px solid ${C.border}`,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0, marginLeft: 12,
+            }}>
+              <Icon name="close" size={16} color={C.muted} stroke={2} />
+            </Tap>
+          </div>
+
+          {status === 'success' ? (
+            <div style={{
+              textAlign: 'center', padding: '32px 16px 16px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+            }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: 64,
+                background: 'rgba(42,154,90,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name="check" size={28} color="#2a9a5a" stroke={2.2} />
+              </div>
+              <div style={{ fontFamily: FONTS.display, fontWeight: 700, fontSize: 20, color: C.text }}>
+                Shukriya bawa!
+              </div>
+              <div style={{ fontFamily: FONTS.body, fontSize: 14, color: C.muted, lineHeight: 1.5 }}>
+                We'll check it out. Agar bhannat lagi toh zaroor add karenge.
+              </div>
+              <Tap onClick={onClose} style={{
+                marginTop: 8, padding: '12px 28px', borderRadius: 100,
+                background: C.primary, color: '#fff',
+                fontFamily: FONTS.body, fontWeight: 500, fontSize: 14,
+              }}>
+                Done
+              </Tap>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Spot name *</label>
+                <input
+                  value={form.name} onChange={set('name')} required
+                  placeholder="e.g. Chai Wali Gali"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Area / Location</label>
+                <input
+                  value={form.area} onChange={set('area')}
+                  placeholder="e.g. MP Nagar, near Z-square"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Kyun jaana chahiye?</label>
+                <textarea
+                  value={form.why} onChange={set('why')} rows={3}
+                  placeholder="In your own words... kya khaas hai yahan?"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Your WhatsApp <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
+                <input
+                  value={form.whatsapp} onChange={set('whatsapp')}
+                  placeholder="So we can credit you if we add it"
+                  type="tel"
+                  style={inputStyle}
+                />
+              </div>
+
+              {status === 'error' && (
+                <div style={{ fontFamily: FONTS.body, fontSize: 13, color: C.accent }}>
+                  Kuch gadbad ho gayi. Try again?
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={status === 'sending' || !form.name.trim()}
+                style={{
+                  all: 'unset', cursor: form.name.trim() ? 'pointer' : 'default',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  width: '100%', boxSizing: 'border-box',
+                  background: form.name.trim() ? C.primary : C.border,
+                  color: form.name.trim() ? '#fff' : C.muted,
+                  padding: '15px 20px', borderRadius: 100,
+                  fontFamily: FONTS.body, fontWeight: 500, fontSize: 15,
+                  transition: 'background 200ms, color 200ms',
+                  marginTop: 4,
+                }}
+              >
+                {status === 'sending' ? 'Sending…' : 'Send it →'}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
 
 const MOOD_ICONS = { date: 'heart', solo: 'coffee', budget: 'rupee', squad: 'users', insta: 'camera', work: 'laptop' }
 
@@ -58,6 +246,7 @@ function MoodTile({ mood, onClick }) {
 
 export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
   const tipIdx = bawaTipIdx % BAWA_TIPS.length
+  const [showSuggest, setShowSuggest] = useState(false)
 
   return (
     <div data-scroll-root style={{
@@ -221,6 +410,25 @@ export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
           Curated by Tarun <span style={{ color: C.accent }}>♥</span>
         </div>
       </div>
+
+      {/* Floating "+" button */}
+      <Tap
+        onClick={() => setShowSuggest(true)}
+        scale={0.9}
+        style={{
+          position: 'fixed', bottom: 96, right: 20,
+          width: 50, height: 50, borderRadius: 50,
+          background: '#b52619',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 16px rgba(181,38,25,0.4)',
+          zIndex: 40,
+        }}
+      >
+        <span style={{ color: '#fff', fontSize: 26, lineHeight: 1, fontWeight: 300, marginTop: -1 }}>+</span>
+      </Tap>
+
+      {/* Suggest a spot sheet */}
+      {showSuggest && <SuggestSheet onClose={() => setShowSuggest(false)} />}
     </div>
   )
 }

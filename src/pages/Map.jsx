@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import L, { divIcon } from 'leaflet'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
-import MarkerClusterGroup from 'react-leaflet-cluster'
 import { SPOTS } from '../data/adapted.js'
 import { C, FONTS, Icon } from '../ui/primitives.jsx'
 
@@ -113,44 +112,32 @@ export default function MapPage({ onOpenSpot }) {
           {userLocation && (
             <Marker position={[userLocation.lat, userLocation.lng]} icon={userPin} />
           )}
-          <MarkerClusterGroup
-            chunkedLoading
-            iconCreateFunction={(cluster) => {
-              const count = cluster.getChildCount()
-              return divIcon({
-                html: `<div style="width:36px;height:36px;background:#006577;border-radius:50%;border:2.5px solid white;box-shadow:0 3px 10px rgba(0,101,119,0.3);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;font-family:'DM Sans',sans-serif;">${count}</div>`,
-                iconSize: [36, 36],
-                iconAnchor: [18, 18],
-              })
-            }}
-          >
-            {SPOTS.map(spot => (
-              <Marker key={spot.id} position={[spot.lat, spot.lng]} icon={createPin(spot)}>
-                <Popup>
-                  <div style={{ fontFamily: FONTS.body, minWidth: 170 }}>
-                    <div style={{ fontFamily: FONTS.display, fontWeight: 600, fontSize: 15, color: '#1a1a1a', marginBottom: 3 }}>
-                      {spot.name}
-                    </div>
-                    <div style={{ fontSize: 12, color: '#8a7a6a', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      {spot.area}
-                      <span>·</span>
-                      <span style={{ color: '#c49a2a' }}>★</span> {spot.rating}
-                    </div>
-                    <button
-                      onClick={() => onOpenSpot(spot)}
-                      style={{
-                        all: 'unset', cursor: 'pointer',
-                        fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
-                        color: C.primary, display: 'inline-flex', alignItems: 'center', gap: 4,
-                      }}
-                    >
-                      View Spot →
-                    </button>
+          {SPOTS.map(spot => (
+            <Marker key={spot.id} position={[spot.lat, spot.lng]} icon={createPin(spot)}>
+              <Popup>
+                <div style={{ fontFamily: FONTS.body, minWidth: 170 }}>
+                  <div style={{ fontFamily: FONTS.display, fontWeight: 600, fontSize: 15, color: '#1a1a1a', marginBottom: 3 }}>
+                    {spot.name}
                   </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MarkerClusterGroup>
+                  <div style={{ fontSize: 12, color: '#8a7a6a', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {spot.area}
+                    <span>·</span>
+                    <span style={{ color: '#c49a2a' }}>★</span> {spot.rating}
+                  </div>
+                  <button
+                    onClick={() => onOpenSpot(spot)}
+                    style={{
+                      all: 'unset', cursor: 'pointer',
+                      fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
+                      color: C.primary, display: 'inline-flex', alignItems: 'center', gap: 4,
+                    }}
+                  >
+                    View Spot →
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
         </MapContainer>
       </div>
 

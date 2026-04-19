@@ -37,17 +37,27 @@ export default function Saved({ onOpenSpot, savedIds, toggleSave, onNavigate }) 
           <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 32, color: C.text, letterSpacing: -0.6 }}>Saved</div>
         </div>
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 30px' }}>
-          <div style={{
-            width: 180, height: 180, borderRadius: 180,
-            background: C.surface, position: 'relative',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            marginBottom: 28,
-          }}>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: 180, boxShadow: 'inset 0 0 0 1px rgba(0,101,119,0.08)' }} />
-            <div style={{ animation: 'float 3s ease-in-out infinite', display: 'inline-flex' }}>
-              <Icon name="bookmark" size={70} color={C.primary} stroke={1.4} />
-            </div>
-            <div style={{ position: 'absolute', top: 24, right: 30, fontFamily: FONTS.display, fontStyle: 'italic', fontSize: 38, color: C.accent, opacity: 0.5, lineHeight: 1 }}>?</div>
+          <div style={{ animation: 'float 3s ease-in-out infinite', marginBottom: 28 }}>
+            <svg viewBox="0 0 120 120" width="120" height="120">
+              <path d="M30 45 Q28 85 35 95 Q60 105 85 95 Q92 85 90 45 Z"
+                    fill="#f5ede3" stroke="#c49a2a" strokeWidth="2"/>
+              <ellipse cx="60" cy="45" rx="30" ry="8"
+                       fill="#faecc0" stroke="#c49a2a" strokeWidth="2"/>
+              <circle cx="50" cy="68" r="3" fill="#8a7a6a"/>
+              <circle cx="70" cy="68" r="3" fill="#8a7a6a"/>
+              <path d="M50 82 Q60 76 70 82"
+                    fill="none" stroke="#8a7a6a" strokeWidth="2"
+                    strokeLinecap="round"/>
+              <path d="M50 38 Q48 30 50 24"
+                    fill="none" stroke="#c49a2a" strokeWidth="1.5"
+                    strokeLinecap="round" opacity="0.5"/>
+              <path d="M60 36 Q58 26 60 18"
+                    fill="none" stroke="#c49a2a" strokeWidth="1.5"
+                    strokeLinecap="round" opacity="0.5"/>
+              <path d="M70 38 Q68 30 70 24"
+                    fill="none" stroke="#c49a2a" strokeWidth="1.5"
+                    strokeLinecap="round" opacity="0.5"/>
+            </svg>
           </div>
           <div style={{ fontFamily: FONTS.display, fontWeight: 700, fontSize: 24, color: C.text, letterSpacing: -0.3, textAlign: 'center' }}>
             Abhi kuch saved nakko hai

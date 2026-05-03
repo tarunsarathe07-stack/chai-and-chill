@@ -4,6 +4,30 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { SPOTS } from '../data/adapted.js'
 import { C, FONTS, Icon } from '../ui/primitives.jsx'
 
+const TRAILS = [
+  {
+    id: 'lake',
+    name: 'Lake evening',
+    line: 'Sunset, chai, then one proper dinner backup.',
+    tags: ['scenic', 'rooftop'],
+    areas: ['Shyamla', 'VIP', 'Lake', 'Gohar', 'Van Vihar'],
+  },
+  {
+    id: 'old',
+    name: 'Old city morning',
+    line: 'Poha-jalebi energy with heritage stops.',
+    tags: ['legendary', 'breakfast', 'budget'],
+    areas: ['Old Bhopal', 'Hamidia', 'Peer Gate', 'Lakherapura', 'New Market'],
+  },
+  {
+    id: 'date',
+    name: 'Low-pressure date',
+    line: 'Good vibe, not too formal, easy exit plan.',
+    tags: ['date'],
+    areas: ['Arera', '10 No', 'Shyamla', 'Gulmohar'],
+  },
+]
+
 const MOOD_COLORS = {
   date: '#e85d75', solo: '#4a6fa5', budget: '#c49a2a',
   friends: '#2a9a5a', instagram: '#9a4ac4', work: '#2a8aaa',
@@ -11,6 +35,10 @@ const MOOD_COLORS = {
   late_night: '#4a3a8a', rooftop: '#c49a2a', scenic: '#2a8aaa',
   default: '#006577',
 }
+
+const getTrailSpots = trail => SPOTS
+  .filter(s => trail.tags.some(t => s.tags.includes(t) || s.moods.includes(t)) || trail.areas.some(a => s.area.includes(a)))
+  .slice(0, 4)
 
 const createPin = (spot) => {
   const color = MOOD_COLORS[spot.moods[0]] || MOOD_COLORS.default
@@ -45,7 +73,10 @@ export default function MapPage({ onOpenSpot }) {
   const [locationError, setLocationError] = useState(null)
   const [loadingLocation, setLoadingLocation] = useState(false)
   const [focusedSpot, setFocusedSpot] = useState(null)
+  const [activeTrailId, setActiveTrailId] = useState('lake')
   const mapRef = useRef(null)
+  const activeTrail = TRAILS.find(t => t.id === activeTrailId) || TRAILS[0]
+  const trailSpots = getTrailSpots(activeTrail)
 
   const getLocation = () => {
     setLoadingLocation(true)
@@ -109,6 +140,7 @@ export default function MapPage({ onOpenSpot }) {
             url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           />
           {userLocation && <PanTo position={userLocation} />}
+          {focusedSpot && <PanTo position={focusedSpot} />}
           {userLocation && (
             <Marker position={[userLocation.lat, userLocation.lng]} icon={userPin} />
           )}
@@ -147,8 +179,84 @@ export default function MapPage({ onOpenSpot }) {
         backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         borderTop: '1px solid rgba(0,101,119,0.08)',
         padding: '12px 20px 100px',
-        minHeight: 70,
+        minHeight: 172,
       }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+          <div>
+            <div style={{ fontFamily: FONTS.body, fontSize: 10, fontWeight: 900, color: C.primary, letterSpacing: 1.2, textTransform: 'uppercase' }}>
+              Mood trails
+            </div>
+            <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 18, color: C.text, letterSpacing: -0.2, marginTop: 2 }}>
+              {activeTrail.name}
+            </div>
+          </div>
+          <button
+            onClick={getLocation}
+            style={{
+              all: 'unset', cursor: 'pointer',
+              width: 38, height: 38, borderRadius: 13,
+              background: C.primary, display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 18px rgba(0,101,119,0.18)',
+            }}
+          >
+            <Icon name="pin" size={16} color="#fff" stroke={2.2} />
+          </button>
+        </div>
+        <div style={{ fontFamily: FONTS.body, fontSize: 12.5, color: C.muted, marginTop: 4, lineHeight: 1.35 }}>
+          {activeTrail.line}
+        </div>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingTop: 10 }}>
+          {TRAILS.map(t => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setActiveTrailId(t.id)
+                const first = getTrailSpots(t)[0]
+                if (first) setFocusedSpot(first)
+              }}
+              style={{
+                all: 'unset', cursor: 'pointer', flexShrink: 0,
+                display: 'inline-flex', alignItems: 'center',
+                padding: '8px 12px', borderRadius: 999,
+                background: activeTrailId === t.id ? C.primary : '#fff',
+                color: activeTrailId === t.id ? '#fff' : C.text,
+                border: activeTrailId === t.id ? `1px solid ${C.primary}` : `1px solid ${C.border}`,
+                fontFamily: FONTS.body, fontSize: 12, fontWeight: 800,
+              }}
+            >
+              {t.name}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingTop: 10, paddingBottom: 2 }}>
+          {trailSpots.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => {
+                setFocusedSpot(s)
+                onOpenSpot(s)
+              }}
+              style={{
+                all: 'unset', cursor: 'pointer', flexShrink: 0,
+                width: 176, background: '#fff', border: `1px solid ${i === 0 ? C.primary : C.border}`,
+                borderRadius: 15, padding: 10,
+                boxShadow: '0 2px 8px rgba(0,101,119,0.08)',
+              }}
+            >
+              <div style={{ fontFamily: FONTS.body, fontSize: 10, fontWeight: 900, color: i === 0 ? C.primary : C.muted, letterSpacing: 1, textTransform: 'uppercase' }}>
+                Stop {i + 1}
+              </div>
+              <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 15, color: C.text, marginTop: 3, lineHeight: 1.08 }}>
+                {s.name}
+              </div>
+              <div style={{ fontFamily: FONTS.body, fontSize: 11, color: C.muted, marginTop: 4 }}>
+                {s.area}
+              </div>
+            </button>
+          ))}
+        </div>
+
         {loadingLocation && (
           <div style={{ fontFamily: FONTS.body, fontSize: 13, color: C.muted, display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 12, height: 12, borderRadius: '50%', border: `2px solid ${C.primary}`, borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />

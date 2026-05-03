@@ -26,12 +26,12 @@ export default function Detail({ spot, onBack, saved, toggleSave }) {
   }, [spot?.id])
 
   const handleShare = async () => {
-    const shareUrl = `https://chaichill.in/api/spot-meta?id=${spot.id}`
+    const shareUrl = `${window.location.origin}/api/spot-meta?id=${spot.id}`
     if (navigator.share) {
       try {
         await navigator.share({
           title: `${spot.name} — Chai & Chill`,
-          text: spot.tagline,
+          text: spot.shareLine || spot.tagline,
           url: shareUrl,
         })
       } catch { /* user cancelled */ }
@@ -138,9 +138,18 @@ export default function Detail({ spot, onBack, saved, toggleSave }) {
             <InfoCell label="Price" value={spot.price} />
             <InfoCell label="Diet" value={spot.diet} />
             <InfoCell label="Hours" value={spot.hours} />
-            <InfoCell label="Budget" value={spot.budget} />
+            <InfoCell label="Best time" value={spot.bestTime} />
           </div>
         </Enter>
+
+        <div style={{ marginTop: 24 }}>
+          <SectionHeader>Bawa Intel</SectionHeader>
+          <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+            <InfoCell label="Perfect for" value={spot.perfectFor} />
+            <InfoCell label="Insider move" value={spot.insiderTip} />
+            <InfoCell label="Avoid when" value={spot.avoidWhen} />
+          </div>
+        </div>
 
         <div style={{ marginTop: 24 }}>
           <SectionHeader>Must Try</SectionHeader>

@@ -209,6 +209,125 @@ function SectionHeader({ children }) {
   )
 }
 
+const ASK_PROMPTS = [
+  {
+    id: 'sunset',
+    icon: 'sun',
+    text: 'Sunset + chai',
+    title: 'Lake side, slow evening.',
+    body: 'Upper Lake mood, golden-hour timing, and one spot where you do not need to pretend you are in a hurry.',
+    mood: 'date',
+  },
+  {
+    id: 'old',
+    icon: 'compass',
+    text: 'Old Bhopal breakfast',
+    title: 'Poha, jalebi, heritage.',
+    body: 'A proper morning trail with legendary places, short hops, and orders that actually matter.',
+    mood: 'budget',
+  },
+  {
+    id: 'work',
+    icon: 'laptop',
+    text: 'Quiet work cafe',
+    title: 'Laptop open, noise low.',
+    body: "Cafe picks where sitting for two hours feels normal, not like you are blocking someone's table.",
+    mood: 'work',
+  },
+]
+
+function BhopalScene() {
+  return (
+    <div style={{
+      position: 'relative', height: 132, borderRadius: 18, overflow: 'hidden',
+      background: 'linear-gradient(180deg, #f8d9b7 0%, #f5b27a 42%, #215760 43%, #0f3e49 100%)',
+      boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.18)',
+    }}>
+      <div style={{
+        position: 'absolute', left: 18, top: 18, width: 42, height: 42, borderRadius: 42,
+        background: '#ffd280', boxShadow: '0 0 28px rgba(255,210,128,0.72)',
+      }} />
+      <svg viewBox="0 0 360 132" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+        <path d="M0 62 C54 46 82 68 121 54 C160 40 186 62 225 48 C273 31 305 45 360 34 L360 132 L0 132 Z" fill="rgba(5,42,52,0.36)" />
+        <path d="M0 85 C50 78 78 92 119 82 C164 71 194 91 237 76 C286 59 320 71 360 64 L360 132 L0 132 Z" fill="rgba(8,73,83,0.72)" />
+        <path d="M36 103 C88 95 129 102 174 96 C226 89 272 96 326 88" stroke="rgba(255,248,240,0.26)" strokeWidth="2" fill="none" />
+        <path d="M55 113 C104 108 139 112 194 106 C235 102 276 106 319 100" stroke="rgba(255,248,240,0.16)" strokeWidth="1.5" fill="none" />
+      </svg>
+      <div style={{
+        position: 'absolute', right: 14, bottom: 14,
+        background: 'rgba(255,248,240,0.9)', color: C.primary,
+        borderRadius: 12, padding: '8px 10px',
+        fontFamily: FONTS.body, fontSize: 10.5, fontWeight: 800,
+        letterSpacing: 1, textTransform: 'uppercase',
+      }}>Upper Lake energy</div>
+    </div>
+  )
+}
+
+function AskCard({ active, onPick, onPlan }) {
+  const item = ASK_PROMPTS[active]
+  return (
+    <div style={{
+      marginTop: 14, background: 'rgba(255,255,255,0.74)', border: `1px solid ${C.border}`,
+      borderRadius: 18, padding: 12,
+      boxShadow: '0 12px 30px rgba(0,101,119,0.08)',
+      backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        fontFamily: FONTS.body, fontSize: 11, fontWeight: 800,
+        color: C.muted, letterSpacing: 1.2, textTransform: 'uppercase',
+      }}>
+        <Icon name="spark" size={14} color={C.accent} stroke={2.1} />
+        Ask like a local
+      </div>
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingTop: 11, paddingBottom: 2 }}>
+        {ASK_PROMPTS.map((prompt, i) => (
+          <Tap key={prompt.id} onClick={() => onPick(i)} scale={0.94} style={{
+            flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 7,
+            minHeight: 36, padding: '0 12px', borderRadius: 13,
+            background: active === i ? C.primary : '#fffdfa',
+            color: active === i ? '#fff' : C.text,
+            border: active === i ? `1px solid ${C.primary}` : `1px solid ${C.border}`,
+            fontFamily: FONTS.body, fontSize: 12, fontWeight: 800,
+          }}>
+            <Icon name={prompt.icon} size={14} color={active === i ? '#fff' : C.primary} stroke={2} />
+            {prompt.text}
+          </Tap>
+        ))}
+      </div>
+      <div style={{
+        marginTop: 12, background: '#12383b', color: '#fff',
+        borderRadius: 16, padding: '14px 14px 13px',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.16,
+          backgroundImage: 'radial-gradient(circle at center, rgba(255,248,240,0.75) 1px, transparent 1.6px)',
+          backgroundSize: '15px 15px',
+        }} />
+        <div style={{ position: 'relative' }}>
+          <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 21, letterSpacing: -0.25, lineHeight: 1.08 }}>
+            {item.title}
+          </div>
+          <div style={{ fontFamily: FONTS.body, fontSize: 12.5, lineHeight: 1.45, color: 'rgba(255,248,240,0.82)', marginTop: 7 }}>
+            {item.body}
+          </div>
+          <Tap onClick={() => onPlan(item.mood)} style={{
+            marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: 7,
+            background: C.accent, color: '#fff',
+            padding: '10px 14px', borderRadius: 12,
+            fontFamily: FONTS.body, fontSize: 12.5, fontWeight: 800,
+          }}>
+            Make this plan
+            <Icon name="arrowRight" size={13} color="#fff" stroke={2.3} />
+          </Tap>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function MoodTile({ mood, onClick }) {
   return (
     <Tap onClick={onClick} scale={0.94} style={{
@@ -247,21 +366,84 @@ function MoodTile({ mood, onClick }) {
 export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
   const tipIdx = bawaTipIdx % BAWA_TIPS.length
   const [showSuggest, setShowSuggest] = useState(false)
+  const [askIdx, setAskIdx] = useState(0)
 
   return (
     <div data-scroll-root style={{
       background: C.bg, height: '100%', overflowY: 'auto', overflowX: 'hidden',
       paddingBottom: 110,
     }}>
+      <div style={{ padding: '54px 18px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 21, color: C.primary, letterSpacing: -0.3 }}>
+            Chai &amp; Chill
+          </div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 10.5, fontWeight: 800,
+            color: C.accent, background: 'rgba(181,38,25,0.08)',
+            border: '1px solid rgba(181,38,25,0.14)',
+            borderRadius: 999, padding: '6px 10px',
+            letterSpacing: 0.4,
+          }}>Bhopal only</div>
+        </div>
+        <div style={{
+          background: '#fffdfa', borderRadius: 22,
+          padding: 12, position: 'relative', overflow: 'hidden',
+          boxShadow: '0 18px 44px rgba(0,101,119,0.12)',
+          border: `1px solid ${C.border}`,
+        }}>
+          <BhopalScene />
+          <div style={{ padding: '16px 8px 6px', position: 'relative' }}>
+            <Enter delay={0} keyId="new-hero-label">
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: FONTS.body, fontSize: 10.5, fontWeight: 800,
+                color: C.muted, letterSpacing: 1.35, textTransform: 'uppercase',
+              }}>
+                <Icon name="spark" size={13} color={C.accent} stroke={2.1} />
+                57 handpicked Bhopal spots
+              </div>
+            </Enter>
+            <Enter delay={100} keyId="new-hero-h">
+              <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 33, lineHeight: 1.04, color: C.text, marginTop: 9, letterSpacing: '-0.5px' }}>
+                Where should<br />we go tonight?
+              </div>
+            </Enter>
+            <Enter delay={200} keyId="new-hero-sub">
+              <div style={{ fontFamily: FONTS.body, fontSize: 13.5, lineHeight: 1.48, color: C.muted, marginTop: 10, maxWidth: 310 }}>
+                Not endless listings. A calm, opinionated shortlist for dates, squads, solo evenings, and lake-side chai plans.
+              </div>
+            </Enter>
+            <Enter delay={300} keyId="new-hero-btn">
+              <Tap onClick={() => onNavigate('plan')} style={{
+                marginTop: 18, display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: C.accent, color: '#fff',
+                padding: '12px 18px', borderRadius: 14,
+                fontFamily: FONTS.body, fontWeight: 800, fontSize: 13,
+                boxShadow: '0 8px 18px rgba(181,38,25,0.24)',
+              }}>
+                Get a verdict
+                <Icon name="arrowRight" size={14} color="#fff" stroke={2.2} />
+              </Tap>
+            </Enter>
+          </div>
+        </div>
+        <AskCard
+          active={askIdx}
+          onPick={setAskIdx}
+          onPlan={(mood) => onNavigate('mood', mood)}
+        />
+      </div>
+
       {/* Top bar */}
-      <div style={{ padding: '62px 20px 8px', display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'none', padding: '62px 20px 8px', alignItems: 'center' }}>
         <div style={{ fontFamily: FONTS.display, fontWeight: 800, fontSize: 20, color: C.primary, letterSpacing: -0.3 }}>
           Chai &amp; Chill
         </div>
       </div>
 
       {/* Hero card */}
-      <div style={{ padding: '12px 20px 0' }}>
+      <div style={{ display: 'none', padding: '12px 20px 0' }}>
         <div style={{
           background: C.primary, borderRadius: 20,
           padding: '28px 24px 32px', position: 'relative', overflow: 'hidden',
@@ -295,14 +477,14 @@ export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
               </div>
             </Enter>
             <Enter delay={300} keyId="hero-btn">
-              <Tap onClick={() => onNavigate('explore')} style={{
+              <Tap onClick={() => onNavigate('plan')} style={{
                 marginTop: 26, display: 'inline-flex', alignItems: 'center', gap: 8,
                 background: C.accent, color: '#fff',
                 padding: '13px 22px', borderRadius: 100,
                 fontFamily: FONTS.body, fontWeight: 500, fontSize: 14,
                 boxShadow: '0 6px 16px rgba(181,38,25,0.32)',
               }}>
-                Show me the best
+                Plan tonight
                 <Icon name="arrowRight" size={14} color="#fff" stroke={2.2} />
               </Tap>
             </Enter>

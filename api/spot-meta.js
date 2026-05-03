@@ -18,8 +18,11 @@ export default function handler(req, res) {
 
   const title   = esc(`${spot.name} — Chai & Chill`)
   const desc    = esc(spot.tagline)
-  const url     = `https://chaichill.in/spot/${spot.id}`
-  const image   = 'https://chaichill.in/og-image.jpg'
+  const host    = req.headers['x-forwarded-host'] || req.headers.host || 'chaichill.in'
+  const proto   = req.headers['x-forwarded-proto'] || 'https'
+  const origin  = `${proto}://${host}`
+  const url     = `${origin}/spot/${spot.id}`
+  const image   = `${origin}/og-image.jpg`
 
   const html = `<!DOCTYPE html>
 <html lang="en">

@@ -5,11 +5,20 @@ import Detail from './pages/Detail.jsx'
 import Explore from './pages/Explore.jsx'
 import MapPage from './pages/Map.jsx'
 import Saved from './pages/Saved.jsx'
+import Plan from './pages/Plan.jsx'
 import BottomNav from './components/BottomNav.jsx'
+import { SPOTS } from './data/adapted.js'
+
+const getInitialStack = () => {
+  const match = window.location.pathname.match(/^\/spot\/(\d+)/)
+  if (!match) return [{ screen: 'vibes' }]
+  const spot = SPOTS.find(s => s.id === Number(match[1]))
+  return spot ? [{ screen: 'vibes' }, { screen: 'detail', data: spot }] : [{ screen: 'vibes' }]
+}
 
 export default function App() {
   const [tab, setTab] = useState('vibes')
-  const [stack, setStack] = useState([{ screen: 'vibes' }])
+  const [stack, setStack] = useState(getInitialStack)
   const [savedIds, setSavedIds] = useState(() => {
     try { return JSON.parse(localStorage.getItem('cc_saved') || '[]') } catch { return [] }
   })
@@ -34,12 +43,14 @@ export default function App() {
     setDirection('forward')
     setStack(st => [...st, { screen, data }])
     setTransition(t => t + 1)
+    if (screen === 'detail' && data?.id) window.history.replaceState(null, '', `/spot/${data.id}`)
   }
 
   const pop = () => {
     setDirection('back')
     setStack(st => st.length > 1 ? st.slice(0, -1) : st)
     setTransition(t => t + 1)
+    window.history.replaceState(null, '', '/')
   }
 
   const switchTab = id => {
@@ -47,10 +58,12 @@ export default function App() {
     setTab(id)
     setStack([{ screen: id }])
     setTransition(t => t + 1)
+    window.history.replaceState(null, '', '/')
   }
 
   const navigate = (target, data) => {
     if (target === 'explore') switchTab('explore')
+    else if (target === 'plan') switchTab('plan')
     else if (target === 'mood') push('mood', data)
     else if (target === 'detail') push('detail', data)
   }
@@ -73,6 +86,8 @@ export default function App() {
     )
   } else if (top.screen === 'explore') {
     screen = <Explore onOpenSpot={openSpot} savedIds={savedIds} toggleSave={toggleSave} />
+  } else if (top.screen === 'plan') {
+    screen = <Plan onOpenSpot={openSpot} savedIds={savedIds} toggleSave={toggleSave} />
   } else if (top.screen === 'map') {
     screen = <MapPage onOpenSpot={openSpot} />
   } else if (top.screen === 'saved') {

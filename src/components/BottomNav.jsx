@@ -2,9 +2,10 @@ import { Tap, Icon, FONTS, C } from '../ui/primitives.jsx'
 
 const tabs = [
   { id: 'vibes',   label: 'Vibes',   icon: 'home' },
+  { id: 'plan',    label: 'Plan',    icon: 'spark' },
   { id: 'explore', label: 'Explore', icon: 'compass' },
   { id: 'map',     label: 'Map',     icon: 'map' },
-  { id: 'saved',   label: 'Saved',   icon: 'bookmark' },
+  { id: 'saved',   label: 'Shortlist', icon: 'bookmark' },
 ]
 
 export default function BottomNav({ active, onChange }) {

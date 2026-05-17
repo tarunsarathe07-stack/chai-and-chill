@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { C, FONTS, Icon, SpotImage, Tap, Reveal, Enter } from '../ui/primitives.jsx'
 import { SPOTS, MOODS, BAWA_TIPS } from '../data/adapted.js'
+import { TRAILS, getTrailStops } from '../data/trails.js'
 
-const FORMSPREE_ID = 'YOUR_FORM_ID' // sign up at formspree.io → new form → copy the ID
+const FORMSPREE_ID = import.meta.env.VITE_FORMSPREE_ID || ''
 
 function SuggestSheet({ onClose }) {
   const [form, setForm] = useState({ name: '', area: '', why: '', whatsapp: '' })
@@ -13,6 +14,10 @@ function SuggestSheet({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.name.trim()) return
+    if (!FORMSPREE_ID) {
+      setStatus('error')
+      return
+    }
     setStatus('sending')
     try {
       const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
@@ -160,7 +165,7 @@ function SuggestSheet({ onClose }) {
 
               {status === 'error' && (
                 <div style={{ fontFamily: FONTS.body, fontSize: 13, color: C.accent }}>
-                  Kuch gadbad ho gayi. Try again?
+                  Suggestion form abhi live nahi hai. Formspree ID add karna padega.
                 </div>
               )}
 
@@ -363,6 +368,79 @@ function MoodTile({ mood, onClick }) {
   )
 }
 
+function HomeTrailCard({ trail, onOpen }) {
+  const stops = getTrailStops(trail)
+  return (
+    <Tap onClick={onOpen} scale={0.98} style={{
+      minWidth: 230,
+      width: 230,
+      borderRadius: 18,
+      padding: 14,
+      background: '#12383b',
+      color: '#fff',
+      boxShadow: '0 14px 32px rgba(18,56,59,0.2)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute',
+        right: -26,
+        top: -36,
+        width: 112,
+        height: 112,
+        borderRadius: 112,
+        background: trail.color,
+        opacity: 0.34,
+      }} />
+      <div style={{ position: 'relative' }}>
+        <div style={{
+          fontFamily: FONTS.body,
+          fontSize: 10,
+          fontWeight: 900,
+          letterSpacing: 1.25,
+          textTransform: 'uppercase',
+          color: 'rgba(255,248,240,0.72)',
+        }}>
+          {trail.vibe}
+        </div>
+        <div style={{
+          fontFamily: FONTS.display,
+          fontWeight: 800,
+          fontSize: 23,
+          lineHeight: 1.04,
+          letterSpacing: -0.35,
+          marginTop: 8,
+        }}>
+          {trail.name}
+        </div>
+        <div style={{
+          fontFamily: FONTS.body,
+          fontSize: 12.4,
+          lineHeight: 1.4,
+          color: 'rgba(255,248,240,0.8)',
+          marginTop: 7,
+        }}>
+          {trail.line}
+        </div>
+        <div style={{ display: 'flex', gap: 6, marginTop: 12, overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {[trail.bestTime, trail.budget, `${stops.length} stops`].map(item => (
+            <span key={item} style={{
+              flexShrink: 0,
+              fontFamily: FONTS.body,
+              fontSize: 10.5,
+              fontWeight: 900,
+              color: '#faecc0',
+              background: 'rgba(250,236,192,0.12)',
+              borderRadius: 999,
+              padding: '5px 8px',
+            }}>{item}</span>
+          ))}
+        </div>
+      </div>
+    </Tap>
+  )
+}
+
 export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
   const tipIdx = bawaTipIdx % BAWA_TIPS.length
   const [showSuggest, setShowSuggest] = useState(false)
@@ -425,6 +503,22 @@ export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
                 Get a verdict
                 <Icon name="arrowRight" size={14} color="#fff" stroke={2.2} />
               </Tap>
+              <Tap onClick={() => onNavigate('trails')} style={{
+                marginTop: 18,
+                marginLeft: 8,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'rgba(0,101,119,0.08)',
+                color: C.primary,
+                padding: '12px 15px',
+                borderRadius: 14,
+                fontFamily: FONTS.body,
+                fontWeight: 800,
+                fontSize: 13,
+              }}>
+                Trails
+              </Tap>
             </Enter>
           </div>
         </div>
@@ -433,6 +527,27 @@ export default function Home({ onNavigate, onOpenSpot, bawaTipIdx }) {
           onPick={setAskIdx}
           onPlan={(mood) => onNavigate('mood', mood)}
         />
+      </div>
+
+      {/* Curated Trails */}
+      <div style={{ padding: '30px 20px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <SectionHeader>Curated Trails</SectionHeader>
+        <Tap onClick={() => onNavigate('trails')} style={{
+          fontFamily: FONTS.body,
+          fontSize: 12,
+          fontWeight: 900,
+          color: C.primary,
+          whiteSpace: 'nowrap',
+        }}>
+          View all
+        </Tap>
+      </div>
+      <div style={{ display: 'flex', gap: 12, padding: '0 20px 4px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+        {TRAILS.slice(0, 5).map((trail, i) => (
+          <Reveal key={trail.id} delay={i * 60}>
+            <HomeTrailCard trail={trail} onOpen={() => onNavigate('trails', trail.id)} />
+          </Reveal>
+        ))}
       </div>
 
       {/* Top bar */}

@@ -6,6 +6,7 @@ import Explore from './pages/Explore.jsx'
 import MapPage from './pages/Map.jsx'
 import Saved from './pages/Saved.jsx'
 import Plan from './pages/Plan.jsx'
+import Trails from './pages/Trails.jsx'
 import BottomNav from './components/BottomNav.jsx'
 import { SPOTS } from './data/adapted.js'
 
@@ -53,16 +54,17 @@ export default function App() {
     window.history.replaceState(null, '', '/')
   }
 
-  const switchTab = id => {
+  const switchTab = (id, data) => {
     setDirection('forward')
     setTab(id)
-    setStack([{ screen: id }])
+    setStack([{ screen: id, data }])
     setTransition(t => t + 1)
     window.history.replaceState(null, '', '/')
   }
 
   const navigate = (target, data) => {
     if (target === 'explore') switchTab('explore')
+    else if (target === 'trails') switchTab('trails', data)
     else if (target === 'plan') switchTab('plan')
     else if (target === 'mood') push('mood', data)
     else if (target === 'detail') push('detail', data)
@@ -88,6 +90,8 @@ export default function App() {
     screen = <Explore onOpenSpot={openSpot} savedIds={savedIds} toggleSave={toggleSave} />
   } else if (top.screen === 'plan') {
     screen = <Plan onOpenSpot={openSpot} savedIds={savedIds} toggleSave={toggleSave} />
+  } else if (top.screen === 'trails') {
+    screen = <Trails initialTrailId={top.data} onOpenSpot={openSpot} savedIds={savedIds} toggleSave={toggleSave} />
   } else if (top.screen === 'map') {
     screen = <MapPage onOpenSpot={openSpot} />
   } else if (top.screen === 'saved') {

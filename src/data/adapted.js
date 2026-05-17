@@ -75,7 +75,7 @@ export const SPOTS = rawSpots.map(s => {
     mustTry: typeof s.mustTry === 'string'
       ? s.mustTry.split(',').map(t => t.trim()).filter(Boolean)
       : (Array.isArray(s.mustTry) ? s.mustTry : ['House special']),
-    diet: s.veg ? 'Pure Veg' : 'Veg + Non-Veg',
+    diet: s.veg === true ? 'Pure Veg' : 'Veg + Non-Veg',
     bar: 'Ask staff',
     legend: s.moods.includes('legendary'),
     bestTime,

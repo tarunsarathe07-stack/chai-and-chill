@@ -1,32 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import L, { divIcon } from 'leaflet'
+import { divIcon } from 'leaflet'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { SPOTS } from '../data/adapted.js'
+import { TRAILS, getTrailStops } from '../data/trails.js'
 import { C, FONTS, Icon } from '../ui/primitives.jsx'
-
-const TRAILS = [
-  {
-    id: 'lake',
-    name: 'Lake evening',
-    line: 'Sunset, chai, then one proper dinner backup.',
-    tags: ['scenic', 'rooftop'],
-    areas: ['Shyamla', 'VIP', 'Lake', 'Gohar', 'Van Vihar'],
-  },
-  {
-    id: 'old',
-    name: 'Old city morning',
-    line: 'Poha-jalebi energy with heritage stops.',
-    tags: ['legendary', 'breakfast', 'budget'],
-    areas: ['Old Bhopal', 'Hamidia', 'Peer Gate', 'Lakherapura', 'New Market'],
-  },
-  {
-    id: 'date',
-    name: 'Low-pressure date',
-    line: 'Good vibe, not too formal, easy exit plan.',
-    tags: ['date'],
-    areas: ['Arera', '10 No', 'Shyamla', 'Gulmohar'],
-  },
-]
 
 const MOOD_COLORS = {
   date: '#e85d75', solo: '#4a6fa5', budget: '#c49a2a',
@@ -35,10 +12,6 @@ const MOOD_COLORS = {
   late_night: '#4a3a8a', rooftop: '#c49a2a', scenic: '#2a8aaa',
   default: '#006577',
 }
-
-const getTrailSpots = trail => SPOTS
-  .filter(s => trail.tags.some(t => s.tags.includes(t) || s.moods.includes(t)) || trail.areas.some(a => s.area.includes(a)))
-  .slice(0, 4)
 
 const createPin = (spot) => {
   const color = MOOD_COLORS[spot.moods[0]] || MOOD_COLORS.default
@@ -73,10 +46,10 @@ export default function MapPage({ onOpenSpot }) {
   const [locationError, setLocationError] = useState(null)
   const [loadingLocation, setLoadingLocation] = useState(false)
   const [focusedSpot, setFocusedSpot] = useState(null)
-  const [activeTrailId, setActiveTrailId] = useState('lake')
+  const [activeTrailId, setActiveTrailId] = useState('lake-evening')
   const mapRef = useRef(null)
   const activeTrail = TRAILS.find(t => t.id === activeTrailId) || TRAILS[0]
-  const trailSpots = getTrailSpots(activeTrail)
+  const trailSpots = getTrailStops(activeTrail)
 
   const getLocation = () => {
     setLoadingLocation(true)
@@ -110,8 +83,6 @@ export default function MapPage({ onOpenSpot }) {
       { timeout: 8000 }
     )
   }
-
-  useEffect(() => { getLocation() }, [])
 
   return (
     <div style={{ background: C.bg, height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -212,7 +183,7 @@ export default function MapPage({ onOpenSpot }) {
               key={t.id}
               onClick={() => {
                 setActiveTrailId(t.id)
-                const first = getTrailSpots(t)[0]
+                const first = getTrailStops(t)[0]
                 if (first) setFocusedSpot(first)
               }}
               style={{
